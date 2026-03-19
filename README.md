@@ -1,49 +1,122 @@
-# AISalesPrediction
-Phase 1: Machine Learning Prediction Pipeline
+# AI Sales Prediction Platform
 
-In the first phase, I built an end-to-end sales forecasting pipeline on the Rossmann dataset by integrating daily sales records with store-level metadata and preparing the data for time-aware supervised learning. I performed preprocessing by filtering closed stores, handling missing competition and promotion fields, and extracting temporal features such as Year, Month, Day, DayOfWeek, IsWeekend, and IsStateHoliday to better capture retail demand patterns.
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green)
+![XGBoost](https://img.shields.io/badge/XGBoost-ML-orange)
+![FAISS](https://img.shields.io/badge/FAISS-VectorDB-purple)
+![Ollama](https://img.shields.io/badge/Ollama-LLM-black)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-UI-blueviolet)
 
-I then designed a feature engineering pipeline that combined categorical encoding, lag-based historical signals, and store segmentation. This included one-hot encoding fields like StoreType, Assortment, and PromoInterval, generating Sales_lag1 and Sales_roll7_mean to capture short-term sales momentum, and applying KMeans clustering on store characteristics to introduce a store-level behavioral grouping feature.
+A full-stack AI system that combines **machine learning-based sales forecasting** with an **LLM-powered RAG assistant**, enabling both real-time predictions and intelligent, context-aware user guidance.
 
-To preserve realistic evaluation, I used a time-based train/test split instead of a random split, training on data before January 1, 2015 and testing on later records. I benchmarked multiple models, including Decision Tree, Random Forest, Linear Regression, Ridge, and Lasso, and selected XGBoost because it achieved the strongest overall predictive performance. Finally, I saved both the trained model and the exact feature schema so the deployment pipeline could maintain strict training-serving consistency during inference.
-The system is served through a FastAPI backend, which exposes a prediction endpoint that accepts structured inputs from the UI.
+---
 
-Technologies used:
-FastAPI, XGBoost, Pandas, NumPy, scikit-learn, KMeans, Bootstrap
+## System Architecture
 
-Phase 2: AI RAG-based Assistant
+```mermaid
+flowchart LR
 
-In the second phase, I extended the system with an AI assistant using a Retrieval-Augmented Generation (RAG) architecture to help users understand model inputs and prediction logic.
+A[User Browser UI] --> B[FastAPI Backend]
 
-Project-specific documentation (such as field definitions and feature engineering notes) is stored as text files, which are processed through a document chunking pipeline. Each chunk is converted into vector embeddings using a SentenceTransformer model, and stored in a FAISS vector database for efficient similarity search.
+B --> C[Prediction Pipeline]
+B --> D[RAG Chat Pipeline]
 
-When a user asks a question, the system embeds the query, retrieves the most relevant document chunks using vector similarity search, and passes this context to a locally hosted LLM via Ollama (Llama 3.1). The LLM then generates a grounded, context-aware response. Guardrails are applied to ensure the assistant only answers domain-specific questions related to the project.
+C --> E[Feature Engineering]
+E --> F[XGBoost Model]
+F --> G[Prediction Output]
+G --> H[Logging Layer]
 
-Technologies used:
+D --> I[Query Embedding]
+I --> J[FAISS Vector Search]
+J --> K[Top-K Context]
+K --> L[Ollama LLM]
+L --> M[Grounded Response]
+```
 
-SentenceTransformers (embeddings)
+---
 
-FAISS (vector similarity search)
+## Phase 1: Machine Learning Prediction Pipeline
 
-Ollama + Llama 3.1 (local LLM)
+Built an end-to-end **sales forecasting system** using the Rossmann dataset by integrating transactional data with store-level metadata and preparing it for time-aware supervised learning.
 
-FastAPI (chat API orchestration)
+### Key Steps
 
-Custom prompt engineering (context grounding + guardrails)
+- **Data Preprocessing**
+  - Filtered closed stores
+  - Handled missing competition and promotion data
+  - Extracted temporal features: `Year`, `Month`, `Day`, `DayOfWeek`, `IsWeekend`, `IsStateHoliday`
 
+- **Feature Engineering**
+  - One-hot encoding for categorical variables (`StoreType`, `Assortment`, `PromoInterval`)
+  - Created lag features: `Sales_lag1`
+  - Rolling statistics: `Sales_roll7_mean`
+  - Store segmentation using **KMeans clustering**
 
-Key Learnings:
+- **Modeling & Evaluation**
+  - Time-based train/test split (pre-2015 vs post-2015)
+  - Benchmarked multiple models:
+    - Linear Regression, Ridge, Lasso
+    - Decision Tree, Random Forest
+    - **XGBoost (best performance)**
 
-Serving ML models via API
+- **Production Considerations**
+  - Saved trained model + feature schema
+  - Ensured training-serving consistency
+  - Exposed prediction API via FastAPI
 
-Designing feature engineering pipelines
+### Technologies Used
+`FastAPI`, `XGBoost`, `Pandas`, `NumPy`, `scikit-learn`, `KMeans`, `Bootstrap`
 
-Building RAG systems end-to-end
+---
 
-Vector similarity search with FAISS
+## Phase 2: AI RAG-Based Assistant
 
-Local LLM inference using Ollama
+Extended the platform with an **LLM-powered assistant** using a Retrieval-Augmented Generation (RAG) architecture to provide explainability and user guidance.
 
-Prompt engineering + guardrails
+### Workflow
 
-Full-stack AI system design
+1. **Document Processing**
+   - Project documentation split into chunks
+   - Converted into embeddings using SentenceTransformers
+
+2. **Vector Storage**
+   - Stored embeddings in **FAISS** for fast similarity search
+
+3. **Query Handling**
+   - User query → embedding
+   - Retrieve top-K relevant chunks
+
+4. **LLM Generation**
+   - Context passed to **Ollama (Llama 3.1)**
+   - Generates grounded, context-aware responses
+
+5. **Guardrails**
+   - Restricts responses to project-specific knowledge
+   - Prevents hallucinations outside domain
+
+### Technologies Used
+`SentenceTransformers`, `FAISS`, `Ollama (Llama 3.1)`, `FastAPI`, `Prompt Engineering`
+
+---
+
+## Key Features
+
+- Real-time sales prediction via REST API  
+- Context-aware AI assistant (RAG)  
+- Vector similarity search using FAISS  
+- FastAPI-based scalable backend  
+- Modular ML + LLM pipeline architecture  
+- Guardrails for controlled LLM responses  
+
+---
+
+## Key Learnings
+
+- Serving ML models in production using APIs  
+- Designing robust feature engineering pipelines  
+- Building end-to-end RAG systems  
+- Implementing vector search with FAISS  
+- Running local LLMs using Ollama  
+- Prompt engineering and response grounding  
+- Full-stack AI system design  
+
